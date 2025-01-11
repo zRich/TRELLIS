@@ -396,3 +396,9 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
+
+# tmp folder and all contents
+tmp/
+
+# submodule
+trellis/representations/mesh/flexicubes/

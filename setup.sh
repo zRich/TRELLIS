@@ -25,13 +25,11 @@ fi
 while true ; do
     case "$1" in
         -h|--help) HELP=true ; shift ;;
-        --new-env) NEW_ENV=true ; shift ;;
         --basic) BASIC=true ; shift ;;
         --xformers) XFORMERS=true ; shift ;;
         --flash-attn) FLASHATTN=true ; shift ;;
         --diffoctreerast) DIFFOCTREERAST=true ; shift ;;
         --vox2seq) VOX2SEQ=true ; shift ;;
-        --spconv) SPCONV=true ; shift ;;
         --mipgaussian) MIPGAUSSIAN=true ; shift ;;
         --kaolin) KAOLIN=true ; shift ;;
         --nvdiffrast) NVDIFFRAST=true ; shift ;;
@@ -50,24 +48,16 @@ if [ "$HELP" = true ] ; then
     echo "Usage: setup.sh [OPTIONS]"
     echo "Options:"
     echo "  -h, --help              Display this help message"
-    echo "  --new-env               Create a new conda environment"
     echo "  --basic                 Install basic dependencies"
     echo "  --xformers              Install xformers"
     echo "  --flash-attn            Install flash-attn"
     echo "  --diffoctreerast        Install diffoctreerast"
     echo "  --vox2seq               Install vox2seq"
-    echo "  --spconv                Install spconv"
     echo "  --mipgaussian           Install mip-splatting"
     echo "  --kaolin                Install kaolin"
     echo "  --nvdiffrast            Install nvdiffrast"
     echo "  --demo                  Install all dependencies for demo"
     return
-fi
-
-if [ "$NEW_ENV" = true ] ; then
-    conda create -n trellis python=3.10
-    conda activate trellis
-    conda install pytorch==2.4.0 torchvision==0.19.0 pytorch-cuda=11.8 -c pytorch -c nvidia
 fi
 
 # Get system information
@@ -142,6 +132,7 @@ if [ "$XFORMERS" = true ] ; then
             esac
         elif [ "$CUDA_VERSION" = "12.4" ] ; then
             case $PYTORCH_VERSION in
+                2.5.1) pip install xformers --index-url https://download.pytorch.org/whl/cu124 ;;
                 2.5.0) pip install xformers==0.0.28.post2 --index-url https://download.pytorch.org/whl/cu124 ;;
                 *) echo "[XFORMERS] Unsupported PyTorch & CUDA version: $PYTORCH_VERSION & $CUDA_VERSION" ;;
             esac
@@ -185,6 +176,7 @@ if [ "$KAOLIN" = true ] ; then
             2.2.1) pip install kaolin -f https://nvidia-kaolin.s3.us-east-2.amazonaws.com/torch-2.2.1_cu118.html;;
             2.2.2) pip install kaolin -f https://nvidia-kaolin.s3.us-east-2.amazonaws.com/torch-2.2.2_cu118.html;;
             2.4.0) pip install kaolin -f https://nvidia-kaolin.s3.us-east-2.amazonaws.com/torch-2.4.0_cu121.html;;
+            2.5.1) pip install kaolin==0.17.0 -f https://nvidia-kaolin.s3.us-east-2.amazonaws.com/torch-2.5.1_cu124.html;;
             *) echo "[KAOLIN] Unsupported PyTorch version: $PYTORCH_VERSION" ;;
         esac
     else
@@ -229,19 +221,6 @@ if [ "$VOX2SEQ" = true ] ; then
         pip install /tmp/extensions/vox2seq
     else
         echo "[VOX2SEQ] Unsupported platform: $PLATFORM"
-    fi
-fi
-
-if [ "$SPCONV" = true ] ; then
-    # install spconv
-    if [ "$PLATFORM" = "cuda" ] ; then
-        case $CUDA_MAJOR_VERSION in
-            11) pip install spconv-cu118 ;;
-            12) pip install spconv-cu120 ;;
-            *) echo "[SPCONV] Unsupported PyTorch CUDA version: $CUDA_MAJOR_VERSION" ;;
-        esac
-    else
-        echo "[SPCONV] Unsupported platform: $PLATFORM"
     fi
 fi
 
